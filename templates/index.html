@@ -46,17 +46,31 @@
       </form>
 <script type="module">
 
+const key = 'Get your own API key at https://www.maptiler.com/cloud/';
+const attributions =
+  '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
+  '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+
+
 const raster = new ol.layer.Tile({
-  source: new ol.source.OSM(),
+  source: new ol.source.XYZ({
+        attributions: attributions,
+        url:
+          'https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{y}.jpg?connectId=c2cbd3f2-003a-46ec-9e46-26a3996d6484&flipy=true',
+        maxZoom: 20,
+      })
 });
 
+const extent = new ol.interaction.Extent({condition: ol.events.condition.shiftKeyOnly});
+
 const source = new ol.source.Vector({wrapX: false});
+
 
 const vector = new ol.layer.Vector({
   source: source,
     style: new ol.style.Style({
     fill: new ol.style.Fill({
-      color: 'white'
+      color: 'rgba(255,255,255,0.1)'
     }),
     stroke: new ol.style.Stroke({
       color: 'black'
@@ -64,8 +78,10 @@ const vector = new ol.layer.Vector({
   })
 });
 
+
+
 const map = new ol.Map({
-  layers: [raster, vector],
+  layers: [raster,vector],
   target: 'map',
   view: new ol.View({
     center: [-11000000, 4600000],
@@ -85,6 +101,7 @@ function addInteraction() {
       freehand: true,
     });
     map.addInteraction(draw);
+    map.addInteraction(extent);
   }
 }
 
@@ -101,9 +118,16 @@ addInteraction();
 geojsonbutton.onclick=function() {
     var writer = new ol.format.GeoJSON();
     var geojsonStr = writer.writeFeatures(source.getFeatures());
-console.log(geojsonStr);
+    download_geojson(geojsonStr)
 };
 
+function download_geojson(geojsonStr) {
+    var a = document.createElement("a");
+    var file = new Blob([geojsonStr], {type: "application/json"});
+    a.href = URL.createObjectURL(file);
+    a.download = "geojson";
+    a.click();
+  }
 
 </script>
   </body>
