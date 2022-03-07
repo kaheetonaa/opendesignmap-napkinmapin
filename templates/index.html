@@ -47,9 +47,37 @@
       </form>
 <script type="module">
 
-const key = 'Get your own API key at https://www.maptiler.com/cloud/';
+const source = new ol.source.Vector({wrapX: false});
+const source_extent = new ol.source.Vector({wrapX: false});
+
+const extent = new ol.layer.Vector({
+  source: source_extent,
+});
+
+
+const canvas = document.createElement('canvas');
+const context = canvas.getContext('2d');
+
+var extent_img = new Image();
+extent_img.src = 'https://www.transparenttextures.com/patterns/paper.png'; // your image here
+extent_img.onload = function() {
+  var extent_pattern = context.createPattern(extent_img, 'repeat');
+
+    extent.setStyle(new ol.style.Style({
+       fill: new ol.style.Fill({
+         color: extent_pattern
+       }),
+        stroke: new ol.style.Stroke({
+      color: 'rgba(255,255,255,0)'
+    }),
+        zIndex:1,
+
+    }));
+  }
+
+
+
 const attributions =
-  '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
   '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
 
@@ -62,21 +90,6 @@ const raster = new ol.layer.Tile({
       })
 });
 
-const source = new ol.source.Vector({wrapX: false});
-const source_extent = new ol.source.Vector({wrapX: false});
-
-const extent = new ol.layer.Vector({
-  source: source_extent,
-    style: new ol.style.Style({
-    zIndex:1,
-    fill: new ol.style.Fill({
-      color: 'rgba(255,255,255,0.3)'
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'rgba(255,255,255,0)'
-    })
-  })
-});
 
 const vector = new ol.layer.Vector({
   source: source,
