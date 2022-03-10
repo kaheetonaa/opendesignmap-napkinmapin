@@ -182,7 +182,9 @@ typeSelect.onchange = function () {
 geojsonbutton.onclick=function() {
     var writer = new ol.format.GeoJSON();
     var geojsonStr = writer.writeFeatures(source.getFeatures()) + writer.writeFeatures(extent.getFeatures());
-    download_geojson(geojsonStr)
+    console.log(geojsonStr);
+    download_geojson(geojsonStr);
+    
 };
 
 function download_geojson(geojsonStr) {
