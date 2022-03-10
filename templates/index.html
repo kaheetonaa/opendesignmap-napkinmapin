@@ -54,7 +54,7 @@ const source_extent = new ol.source.Vector({wrapX: false});
 
 const extent = new ol.layer.Vector({
   source: source_extent,
-  opacity:0.8,
+  opacity:0.75,
 });
 
 
@@ -136,13 +136,6 @@ function addInteraction() {
     });
       
   // draw end set properties test
-  draw.on('drawend', function(e) {
-  e.feature.setProperties({
-    'id': 1234,
-    'name': 'yourCustomName'
-  })
-  console.log(e.feature, e.feature.getProperties());
-  });
       
   //add draw to map
   map.addInteraction(draw);
@@ -156,6 +149,15 @@ function addInteraction() {
     map.addInteraction(draw);
   break;
   }
+  
+//drawend event
+draw.on('drawend', function(e) {
+  e.feature.setProperties({
+    'id': 1234,
+    'name': 'yourCustomName'
+  })
+  console.log(e.feature, e.feature.getProperties());
+  });
 }
 
 /**
