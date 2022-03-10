@@ -134,6 +134,17 @@ function addInteraction() {
       geometryFunction:ol.interaction.Draw.createBox(),
       freehand: false,
     });
+      
+  // draw end set properties test
+  draw.on('drawend', function(e) {
+  e.feature.setProperties({
+    'id': 1234,
+    'name': 'yourCustomName'
+  })
+  console.log(e.feature, e.feature.getProperties());
+  });
+      
+  //add draw to map
   map.addInteraction(draw);
   break;
   default:
