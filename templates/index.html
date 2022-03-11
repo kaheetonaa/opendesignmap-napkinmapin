@@ -1,62 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
-    <title>Freehand Drawing</title>
-    <style>
-      .linestring-button {
-        top: 12.5em;
-        left: 0.5em;
-      }
-      .polygon-button {
-        top: 15em;
-        left: 0.5em;
-      }
-      .extent-button {
-        top: 10em;
-        left: 0.5em;
-      }
-      .map {
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
+  <title>Freehand Drawing</title>
+  <style>
+    .red-button {
+      bottom: 12.5em;
+      right: 0.5em;
+    }
+    .blue-button {
+      bottom: 15em;
+      right: 0.5em;
+    }
+    .black-button {
+      bottom: 10em;
+      right: 0.5em;
+    }
+    .linestring-button {
+      top: 12.5em;
+      left: 0.5em;
+    }
+    .polygon-button {
+      top: 15em;
+      left: 0.5em;
+    }
+    .extent-button {
+      top: 10em;
+      left: 0.5em;
+    }
+    .map {
       position: fixed;
       top: 0;
       left: 0;
       bottom: 0;
       right: 0;
       z-index: -1;
-      }
-      .form-inline {
+    }
+    .form-inline {
       position: fixed;
       bottom: 30px;
       left: 20px; 
       z-index: 0;
-      }
-      .title {
+    }
+    .title {
       position: absolute;
       bottom: 60px;
       left: 20px; 
       z-index: 0;
-      }
-    </style>
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
-  </head>
-  <body>
-    <div id="map" class="map"></div>
-    <div class="title">
+</head>
+<body>
+  <div id="map" class="map"></div>
+  <div class="title">
     <b> Mappin Napkin </b> <br>
     <button id="geojsonbutton">geojson button</button>
   </div>
-<script type="module">
+  <script type="module">
 let draw; // global so we can remove it later
 var typeSelect = document.getElementById('type');
 let type="None";
+let stroke_color="black";
+let fill_color="rgba(0, 0, 0, 0.2)"
 
 class linestring_button extends ol.control.Control {
   /**
    * @param {Object} [opt_options] Control options.
    */
-  constructor(opt_options) {
+   constructor(opt_options) {
     const options = opt_options || {};
 
     const button = document.createElement("button");
@@ -80,7 +94,7 @@ class polygon_button extends ol.control.Control {
   /**
    * @param {Object} [opt_options] Control options.
    */
-  constructor(opt_options) {
+   constructor(opt_options) {
     const options = opt_options || {};
 
     const button = document.createElement("button");
@@ -104,7 +118,7 @@ class extent_button extends ol.control.Control {
   /**
    * @param {Object} [opt_options] Control options.
    */
-  constructor(opt_options) {
+   constructor(opt_options) {
     const options = opt_options || {};
 
     const button = document.createElement("button");
@@ -124,6 +138,81 @@ class extent_button extends ol.control.Control {
   }
 }
 
+class red_color_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "🔴";
+    button.id='redbutton';
+
+    const element = document.createElement("div");
+    element.className = "red-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{stroke_color="red";fill_color="rgba(255, 0, 0, 0.2)"}, false);
+  }
+}
+
+class black_color_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "⚫";
+    button.id='redbutton';
+
+    const element = document.createElement("div");
+    element.className = "black-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{stroke_color="black";fill_color="rgba(0, 0, 0, 0.2)"}, false);
+  }
+}
+
+class blue_color_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "🔵";
+    button.id='redbutton';
+
+    const element = document.createElement("div");
+    element.className = "blue-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{stroke_color="blue";fill_color="rgba(0, 0, 255, 0.3)"}, false);
+  }
+}
+
+
+//🔴⚫🔵
+
 
 const source = new ol.source.Vector({wrapX: true});
 const source_extent = new ol.source.Vector({wrapX: true});
@@ -142,45 +231,47 @@ extent_img.src = 'https://st2.depositphotos.com/3769671/7957/v/600/depositphotos
 extent_img.onload = function() {
   var extent_pattern = context.createPattern(extent_img, 'repeat');
 
-    extent.setStyle(new ol.style.Style({
-       fill: new ol.style.Fill({
-         color: extent_pattern
-       }),
-        stroke: new ol.style.Stroke({
-      color: 'rgba(255,255,255,0)'
-    }),
-        zIndex:1,
+  extent.setStyle(new ol.style.Style({
+   fill: new ol.style.Fill({
+     color: extent_pattern
+   }),
+   stroke: new ol.style.Stroke({
+    color: 'rgba(255,255,255,0)'
+  }),
+   zIndex:1,
 
-    }));
-  }
+ }));
+}
 
 const attributions =
-  '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+'<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
 
 const raster = new ol.layer.Tile({
   source: new ol.source.XYZ({
-        attributions: attributions,
-        url:
-          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        maxZoom: 20,
-      })
+    attributions: attributions,
+    url:
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 20,
+  })
 });
 
 
 const vector = new ol.layer.VectorImage({
   source: source,
-    style: new ol.style.Style({
-    zIndex:2,
-    fill: new ol.style.Fill({
-      color: 'rgba(0,0,0,0.5)'
-    }),
-    stroke: new ol.style.Stroke({
-      color: 'black'
+  style: function (feature) {
+    return new ol.style.Style({
+      zIndex:20,
+      fill: new ol.style.Fill({
+        color: getColor(feature),
+      }),
+      stroke: new ol.style.Stroke({
+        color: getColor(feature),
+        width: getStrokeWidth(feature)
+      }),
     })
-  })
+  }
 });
-
 
 
 const map = new ol.Map({
@@ -188,7 +279,10 @@ const map = new ol.Map({
     new linestring_button(),
     new extent_button(),
     new polygon_button(),
-  ]),
+    new red_color_button,
+    new black_color_button,
+    new blue_color_button
+    ]),
   layers: [raster,extent,vector],
   target: 'map',
   view: new ol.View({
@@ -198,54 +292,88 @@ const map = new ol.Map({
   }),
 });
 
+function getColor(feature) {
+  return feature.get('color');
+}
+
+function getStrokeWidth(feature) {
+  switch (feature.get('type')) {
+case 'LineString':
+return 1.5;
+break;
+
+case 'Polygon':
+return null;
+break;
+
+  }
+}
+
 addInteraction();
 
 function addInteraction() {
   const value = type; //typeSelect.value;
   console.log(type);
   switch (value){
-  case 'None':
-  break;
-  case 'Extent':
-  draw = new ol.interaction.Draw({
+    case 'None':
+    break;
+
+    case 'Extent':
+    draw = new ol.interaction.Draw({
       source: source_extent,
       type: 'Circle',
       geometryFunction:ol.interaction.Draw.createBox(),
       freehand: false,
     });
-      
-  
    // draw end set properties test
    //drawend event
-draw.on('drawend', function(e) {
-  e.feature.setProperties({
-    'id': 1234,
-    'name': 'yourCustomName'
-  })
-  console.log(e.feature, e.feature.getProperties());
-  map.removeInteraction(draw);
+   draw.on('drawend', function(e) {
+    e.feature.setProperties({
+      'type': 'Extent'
+    })
+    console.log(e.feature, e.feature.getProperties());
+    map.removeInteraction(draw);
   });
-  
+
   //add draw to map
   map.addInteraction(draw);
   break;
-  default:
-    draw = new ol.interaction.Draw({
-      source: source,
-      type: type,
-      freehand: true,
-    });
-    map.addInteraction(draw);
-      
-    //drawend event
-draw.on('drawend', function(e) {
-  e.feature.setProperties({
-    'id': 1234,
-    'name': 'yourCustomName'
-  })
-  console.log(e.feature, e.feature.getProperties());
+
+  case 'LineString':
+  draw = new ol.interaction.Draw({
+    source: source,
+    type: type,
+    freehand: true,
   });
-  break;
+  map.addInteraction(draw);
+
+    //drawend event
+    draw.on('drawend', function(e) {
+      e.feature.setProperties({
+        'color': stroke_color,
+        'type': type
+      })
+      console.log(e.feature, e.feature.getProperties());
+    });
+    break;
+
+    case 'Polygon':
+  draw = new ol.interaction.Draw({
+    source: source,
+    type: type,
+    freehand: true,
+  });
+  map.addInteraction(draw);
+
+    //drawend event
+    draw.on('drawend', function(e) {
+      e.feature.setProperties({
+        'color': fill_color,
+        'type': type
+      })
+      console.log(e.feature, e.feature.getProperties());
+    });
+    break;
   }
   
 }
@@ -253,7 +381,7 @@ draw.on('drawend', function(e) {
 /**
  * Handle change event.
  */
-extentbutton.onclick=function() {
+ extentbutton.onclick=function() {
   map.removeInteraction(draw);
   addInteraction();
 };
@@ -269,21 +397,21 @@ polygonbutton.onclick=function() {
 };
 
 geojsonbutton.onclick=function() {
-    var writer = new ol.format.GeoJSON({featureProjection:'EPSG:3857'});
-    var geojsonStr = writer.writeFeatures(source.getFeatures());
-    console.log(geojsonStr);
-    download_geojson(geojsonStr);
-    
+  var writer = new ol.format.GeoJSON({featureProjection:'EPSG:3857'});
+  var geojsonStr = writer.writeFeatures(source.getFeatures());
+  console.log(geojsonStr);
+  download_geojson(geojsonStr);
+
 };
 
 function download_geojson(geojsonStr) {
-    var a = document.createElement("a");
-    var file = new Blob([geojsonStr], {type: "application/json"});
-    a.href = URL.createObjectURL(file);
-    a.download = "geojson";
-    a.click();
-  }
+  var a = document.createElement("a");
+  var file = new Blob([geojsonStr], {type: "application/json"});
+  a.href = URL.createObjectURL(file);
+  a.download = "geojson";
+  a.click();
+}
 
 </script>
-  </body>
+</body>
 </html>
