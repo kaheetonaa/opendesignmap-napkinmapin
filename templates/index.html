@@ -98,7 +98,7 @@ class polygon_button extends ol.control.Control {
     const options = opt_options || {};
 
     const button = document.createElement("button");
-    button.innerHTML = "⃤";
+    button.innerHTML = "▲"
     button.id='polygonbutton';
 
     const element = document.createElement("div");
@@ -244,7 +244,7 @@ extent_img.onload = function() {
 }
 
 const attributions =
-'<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+'<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a><br><a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
 
 const raster = new ol.layer.Tile({
@@ -398,8 +398,8 @@ polygonbutton.onclick=function() {
 
 geojsonbutton.onclick=function() {
   var writer = new ol.format.GeoJSON({featureProjection:'EPSG:3857'});
-  var geojsonStr = writer.writeFeatures(source.getFeatures());
-  console.log(geojsonStr);
+  var geojsonStr = writer.writeFeatures(source.getFeatures().concat(source_extent.getFeatures()));
+  console.log(source.getFeatures().concat(source_extent.getFeatures()));
   download_geojson(geojsonStr);
 
 };
