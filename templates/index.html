@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
     <title>Freehand Drawing</title>
     <style>
+      .linestring-button {
+        top: 12.5em;
+        left: 0.5em;
+      }
+      .polygon-button {
+        top: 15em;
+        left: 0.5em;
+      }
+      .extent-button {
+        top: 10em;
+        left: 0.5em;
+      }
       .map {
       position: fixed;
       top: 0;
@@ -33,26 +45,90 @@
     <div id="map" class="map"></div>
     <div class="title">
     <b> Mappin Napkin </b> <br>
-    <label for="fname">First name:</label> <input type="text" id="fname" name="fname"><br>
     <button id="geojsonbutton">geojson button</button>
   </div>
-    <form class="form-inline">
-      
-      <label for="type">Geometry type &nbsp;</label>
-      <select id="type">
-        <option value="None">None</option>
-        <option value="Extent">Extent</option>
-        <option value="LineString">LineString</option>
-        <option value="Polygon">Polygon</option>
-        <option value="Circle">Circle</option>
-      </select>
-      </form>
 <script type="module">
+let draw; // global so we can remove it later
+var typeSelect = document.getElementById('type');
+let type="None";
+
+class linestring_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+  constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "╱";
+    button.id='linestringbutton';
+
+    const element = document.createElement("div");
+    element.className = "linestring-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click",  ()=>{type="LineString"}, false);
+  }
+}
+
+class polygon_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+  constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "⃤";
+    button.id='polygonbutton';
+
+    const element = document.createElement("div");
+    element.className = "polygon-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{type="Polygon";}, false);
+  }
+}
+
+class extent_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+  constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "📄";
+    button.id='extentbutton';
+
+    const element = document.createElement("div");
+    element.className = "extent-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{type="Extent"}, false);
+  }
+}
+
 
 const source = new ol.source.Vector({wrapX: true});
 const source_extent = new ol.source.Vector({wrapX: true});
 
-const extent = new ol.layer.Vector({
+const extent = new ol.layer.VectorImage({
   source: source_extent,
   opacity:0.75,
 });
@@ -92,12 +168,12 @@ const raster = new ol.layer.Tile({
 });
 
 
-const vector = new ol.layer.Vector({
+const vector = new ol.layer.VectorImage({
   source: source,
     style: new ol.style.Style({
     zIndex:2,
     fill: new ol.style.Fill({
-      color: 'rgba(255,255,255,0.1)'
+      color: 'rgba(0,0,0,0.5)'
     }),
     stroke: new ol.style.Stroke({
       color: 'black'
@@ -108,22 +184,25 @@ const vector = new ol.layer.Vector({
 
 
 const map = new ol.Map({
+  controls: ol.control.defaults().extend([
+    new linestring_button(),
+    new extent_button(),
+    new polygon_button(),
+  ]),
   layers: [raster,extent,vector],
   target: 'map',
   view: new ol.View({
-    center: [2018642,8252714],
+    projection:'EPSG:3857',
+    center: [105,21],
     zoom: 4,
   }),
 });
 
-const typeSelect = document.getElementById('type');
-
 addInteraction();
 
-let draw; // global so we can remove it later
 function addInteraction() {
-  const value = typeSelect.value;
-
+  const value = type; //typeSelect.value;
+  console.log(type);
   switch (value){
   case 'None':
   break;
@@ -144,6 +223,7 @@ draw.on('drawend', function(e) {
     'name': 'yourCustomName'
   })
   console.log(e.feature, e.feature.getProperties());
+  map.removeInteraction(draw);
   });
   
   //add draw to map
@@ -152,7 +232,7 @@ draw.on('drawend', function(e) {
   default:
     draw = new ol.interaction.Draw({
       source: source,
-      type: typeSelect.value,
+      type: type,
       freehand: true,
     });
     map.addInteraction(draw);
@@ -173,14 +253,23 @@ draw.on('drawend', function(e) {
 /**
  * Handle change event.
  */
-typeSelect.onchange = function () {
+extentbutton.onclick=function() {
   map.removeInteraction(draw);
   addInteraction();
-  console.log(extent);
+};
+
+linestringbutton.onclick=function() {
+  map.removeInteraction(draw);
+  addInteraction();
+};
+
+polygonbutton.onclick=function() {
+  map.removeInteraction(draw);
+  addInteraction();
 };
 
 geojsonbutton.onclick=function() {
-    var writer = new ol.format.GeoJSON();
+    var writer = new ol.format.GeoJSON({featureProjection:'EPSG:3857'});
     var geojsonStr = writer.writeFeatures(source.getFeatures());
     console.log(geojsonStr);
     download_geojson(geojsonStr);
