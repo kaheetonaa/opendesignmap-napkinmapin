@@ -334,7 +334,7 @@ const raster = new ol.layer.Tile({
   source: new ol.source.XYZ({
     attributions: attributions,
     url:
-    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{y}.jpg?connectId=c2cbd3f2-003a-46ec-9e46-26a3996d6484&flipy=true',
     maxZoom: 20,
   })
 });
