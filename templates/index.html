@@ -14,6 +14,10 @@
       bottom: 15em;
       right: 0.5em;
     }
+    .green-button {
+      bottom: 17.5em;
+      right: 0.5em;
+    }
     .black-button {
       bottom: 10em;
       right: 0.5em;
@@ -24,6 +28,10 @@
     }
     .polygon-button {
       top: 15em;
+      left: 0.5em;
+    }
+    .geolocation-button {
+      top: 17.5em;
       left: 0.5em;
     }
     .extent-button {
@@ -60,6 +68,21 @@
     <button id="geojsonbutton">geojson button</button>
   </div>
   <script type="module">
+
+const view = new ol.View({
+    center: [-11000000, 4600000],
+    zoom: 4,
+});
+
+const geolocation = new ol.Geolocation({
+  // enableHighAccuracy must be set to true to have the heading value.
+  trackingOptions: {
+    enableHighAccuracy: true,
+  },
+  tracking:true,
+  projection: view.getProjection(),
+});
+
 let draw; // global so we can remove it later
 var typeSelect = document.getElementById('type');
 let type="None";
@@ -110,9 +133,45 @@ class polygon_button extends ol.control.Control {
       target: options.target
     });
 
-    button.addEventListener("click", ()=>{type="Polygon";}, false);
-  }
+    button.addEventListener("click", ()=>{
+      type="Polygon";
+    });
 }
+}
+
+class geolocation_button extends ol.control.Control { 
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "📍"
+    button.id='geolocationbutton';
+
+    const element = document.createElement("div");
+    element.className = "geolocation-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{
+    let coordinate=geolocation.getPosition();
+    console.log(geolocation);
+    view.animate({
+    center: coordinate,
+    zoom:16,
+    duration: 2000,
+    });
+  });
+    }
+}
+
+
 
 class extent_button extends ol.control.Control {
   /**
@@ -171,7 +230,7 @@ class black_color_button extends ol.control.Control {
 
     const button = document.createElement("button");
     button.innerHTML = "⚫";
-    button.id='redbutton';
+    button.id='blackbutton';
 
     const element = document.createElement("div");
     element.className = "black-button ol-unselectable ol-control";
@@ -195,7 +254,7 @@ class blue_color_button extends ol.control.Control {
 
     const button = document.createElement("button");
     button.innerHTML = "🔵";
-    button.id='redbutton';
+    button.id='bluebutton';
 
     const element = document.createElement("div");
     element.className = "blue-button ol-unselectable ol-control";
@@ -210,8 +269,32 @@ class blue_color_button extends ol.control.Control {
   }
 }
 
+class green_color_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
 
-//🔴⚫🔵
+    const button = document.createElement("button");
+    button.innerHTML = "🟢";
+    button.id='greenbutton';
+
+    const element = document.createElement("div");
+    element.className = "green-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{stroke_color="green";fill_color="rgba(0, 255, 0, 0.3)"}, false);
+  }
+}
+
+
+//🔴⚫🔵🟢
 
 
 const source = new ol.source.Vector({wrapX: true});
@@ -281,15 +364,13 @@ const map = new ol.Map({
     new polygon_button(),
     new red_color_button,
     new black_color_button,
-    new blue_color_button
+    new blue_color_button,
+    new green_color_button,
+    new geolocation_button,
     ]),
   layers: [raster,extent,vector],
   target: 'map',
-  view: new ol.View({
-    projection:'EPSG:3857',
-    center: [105,21],
-    zoom: 4,
-  }),
+  view: view,
 });
 
 function getColor(feature) {
@@ -313,7 +394,6 @@ addInteraction();
 
 function addInteraction() {
   const value = type; //typeSelect.value;
-  console.log(type);
   switch (value){
     case 'None':
     break;

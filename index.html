@@ -46,6 +46,11 @@
       </form>
 <script type="module">
 
+const view = new ol.View({
+    center: [-11000000, 4600000],
+    zoom: 4,
+  });
+
 const key = 'Get your own API key at https://www.maptiler.com/cloud/';
 const attributions =
   '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
@@ -83,10 +88,7 @@ const vector = new ol.layer.Vector({
 const map = new ol.Map({
   layers: [raster,vector],
   target: 'map',
-  view: new ol.View({
-    center: [-11000000, 4600000],
-    zoom: 4,
-  }),
+  view: view,
 });
 
 const typeSelect = document.getElementById('type');
