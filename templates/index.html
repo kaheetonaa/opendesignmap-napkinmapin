@@ -65,7 +65,7 @@
   </style>
   <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
 </head>
-<body>
+<body ontouchstart="countTouches(event)" ontouchend="countTouches(event)">
   <div id="map" class="map"></div>
   <div class="title">
     <b> Mappin Napkin </b> <br>
@@ -96,11 +96,18 @@ let type="None";
 let stroke_color="black";
 let fill_color="rgba(0, 0, 0, 0.2)";
 let url_type=1;
+let touch_number=0;
 const raster_source=[new ol.source.XYZ({
     attributions: attributions,
     url:'https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{y}.jpg?connectId=c2cbd3f2-003a-46ec-9e46-26a3996d6484&flipy=true',
     maxZoom: 20,
   }), new ol.source.OSM()];
+
+
+function countTouches(event) {
+  touch_number = event.touches.length;
+  console.log(touch_number);
+}
 
 class linestring_button extends ol.control.Control {
   /**
