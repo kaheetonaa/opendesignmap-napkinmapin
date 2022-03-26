@@ -104,12 +104,6 @@ const raster_source=[new ol.source.XYZ({
   }), new ol.source.OSM()];
 
 
-function countTouches(event) {
-  touch_number = event.touches.length;
-  console.log(touch_number);
-  document.getElementById("demo").innerHTML = touch_number;
-}
-
 class linestring_button extends ol.control.Control {
   /**
    * @param {Object} [opt_options] Control options.
@@ -438,12 +432,8 @@ break;
   }
 }
 
-addInteraction();
-
 function addInteraction() {
   const value = type; //typeSelect.value;
-  switch (touch_number) {
-    case 1:
   switch (value){
     case 'None':
     break;
@@ -504,16 +494,23 @@ function addInteraction() {
     });
     break;
   }
-  break;
-  case 2:
-  break;
-  }
   
 }
 
 /**
  * Handle change event.
  */
+
+function countTouches(event) {
+  touch_number = event.touches.length;
+  console.log(touch_number);
+  document.getElementById("demo").innerHTML = touch_number;
+  if (touch_number>1) {
+map.removeInteraction(draw);
+
+  }
+}
+
  extentbutton.onclick=function() {
   map.removeInteraction(draw);
   addInteraction();
