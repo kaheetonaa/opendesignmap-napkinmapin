@@ -38,6 +38,10 @@
       top: 10em;
       left: 0.5em;
     }
+    .map_change-button {
+      top: 0.5em;
+      right: 0.5em; 
+    }
     .map {
       position: fixed;
       top: 0;
@@ -69,6 +73,9 @@
   </div>
   <script type="module">
 
+const attributions =
+'<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a><br><a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+
 const view = new ol.View({
     center: [-11000000, 4600000],
     zoom: 4,
@@ -87,7 +94,13 @@ let draw; // global so we can remove it later
 var typeSelect = document.getElementById('type');
 let type="None";
 let stroke_color="black";
-let fill_color="rgba(0, 0, 0, 0.2)"
+let fill_color="rgba(0, 0, 0, 0.2)";
+let url_type=1;
+const raster_source=[new ol.source.XYZ({
+    attributions: attributions,
+    url:'https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{y}.jpg?connectId=c2cbd3f2-003a-46ec-9e46-26a3996d6484&flipy=true',
+    maxZoom: 20,
+  }), new ol.source.OSM()];
 
 class linestring_button extends ol.control.Control {
   /**
@@ -109,7 +122,9 @@ class linestring_button extends ol.control.Control {
       target: options.target
     });
 
-    button.addEventListener("click",  ()=>{type="LineString"}, false);
+    button.addEventListener("click",  ()=>{
+      type="LineString";
+    }, false);
   }
 }
 
@@ -172,6 +187,41 @@ class geolocation_button extends ol.control.Control {
 }
 
 
+class map_change_button extends ol.control.Control {
+  /**
+   * @param {Object} [opt_options] Control options.
+   */
+   constructor(opt_options) {
+    const options = opt_options || {};
+
+    const button = document.createElement("button");
+    button.innerHTML = "🗺";
+    button.id='mapchangebutton';
+
+    const element = document.createElement("div");
+    element.className = "map_change-button ol-unselectable ol-control";
+    element.appendChild(button);
+
+    super({
+      element: element,
+      target: options.target
+    });
+
+    button.addEventListener("click", ()=>{
+      switch(url_type) {
+        case 1:
+        url_type=0;
+        break;
+        case 0:
+        url_type=1;
+        break;
+      }
+      raster.setSource(raster_source[url_type]);
+      console.log(url_type);
+
+    }, false);
+  }
+}
 
 class extent_button extends ol.control.Control {
   /**
@@ -294,7 +344,7 @@ class green_color_button extends ol.control.Control {
 }
 
 
-//🔴⚫🔵🟢
+//🔴⚫🔵🟢🗺
 
 
 const source = new ol.source.Vector({wrapX: true});
@@ -326,18 +376,7 @@ extent_img.onload = function() {
  }));
 }
 
-const attributions =
-'<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a><br><a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
-
-
-const raster = new ol.layer.Tile({
-  source: new ol.source.XYZ({
-    attributions: attributions,
-    url:
-    'https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe:ImageryTileService@EPSG:3857@jpg/{z}/{x}/{y}.jpg?connectId=c2cbd3f2-003a-46ec-9e46-26a3996d6484&flipy=true',
-    maxZoom: 20,
-  })
-});
+const raster = new ol.layer.Tile({source:raster_source[url_type]});
 
 
 const vector = new ol.layer.VectorImage({
@@ -367,6 +406,7 @@ const map = new ol.Map({
     new blue_color_button,
     new green_color_button,
     new geolocation_button,
+    new map_change_button
     ]),
   layers: [raster,extent,vector],
   target: 'map',
