@@ -68,7 +68,7 @@
 <body ontouchstart="countTouches(event)" ontouchend="countTouches(event)">
   <div id="map" class="map"></div>
   <div class="title">
-    <b> Mappin Napkin </b> <br>
+    <b> Mappin Napkin <span id="demo">0</span> </b> <br>
     <button id="geojsonbutton">geojson button</button>
   </div>
   <script>
@@ -107,6 +107,7 @@ const raster_source=[new ol.source.XYZ({
 function countTouches(event) {
   touch_number = event.touches.length;
   console.log(touch_number);
+  document.getElementById("demo").innerHTML = touch_number;
 }
 
 class linestring_button extends ol.control.Control {
