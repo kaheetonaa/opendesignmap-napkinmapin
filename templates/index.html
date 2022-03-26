@@ -71,7 +71,7 @@
     <b> Mappin Napkin </b> <br>
     <button id="geojsonbutton">geojson button</button>
   </div>
-  <script type="module">
+  <script>
 
 const attributions =
 '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a><br><a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
@@ -441,10 +441,10 @@ addInteraction();
 
 function addInteraction() {
   const value = type; //typeSelect.value;
+  if (touch_number<2) {
   switch (value){
     case 'None':
     break;
-
     case 'Extent':
     draw = new ol.interaction.Draw({
       source: source_extent,
@@ -501,6 +501,7 @@ function addInteraction() {
       console.log(e.feature, e.feature.getProperties());
     });
     break;
+  }
   }
   
 }
